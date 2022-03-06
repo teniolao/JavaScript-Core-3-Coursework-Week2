@@ -1,16 +1,31 @@
-let button = document.getElementById("addImage");
-let ulTag = document.getElementsByTagName("ul");
-let liTag = document.getElementById("list");
-let imgTag = document.createElement("img");
+const button = document.querySelector("button");
 
-button.addEventListener("click", addImage());
+function addDogToList(dogURL) {
+  const ulTag = document.querySelector("ul");
+  const liTag = document.createElement("li");
+  const image = document.createElement("img");
+  image.src = dogURL;
+  liTag.appendChild(image);
+  ulTag.appendChild(liTag);
+}
+
+button.addEventListener("click", (e) => {
+  addImage()
+    .then((dogURL) => addDogToList(dogURL))
+    .catch((err) => {
+      const dog404Placeholder = "./dog-placeholder.jpg";
+      addDogToList(dog404Placeholder);
+    });
+});
 
 function addImage() {
-  fetch("https://dog.ceo/api/breeds/image/random")
+  const apiURL = "https://dog.ceo/api/breeds/image/random";
+  return fetch(apiURL)
     .then((response) => response.json())
     .then((data) => {
-      imgTag.src = data.message;
-    })
-    .catch((err) => console.log(err));
+      if (data.code === 404) return Promise.reject("No dog found!");
+      else return data.message;
+    });
 }
-liTag.append(imgTag);
+
+
